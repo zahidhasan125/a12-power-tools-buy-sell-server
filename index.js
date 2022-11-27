@@ -90,6 +90,18 @@ async function run() {
             const result = await usersCollection.insertOne(user);
             res.send(result);
         })
+
+        app.get('/sellers', async (req, res) => {
+            const query = { userType: 'seller' };
+            const sellers = await usersCollection.find(query).toArray();
+            res.send(sellers)
+        })
+
+        app.get('/buyers', async (req, res) => {
+            const query = { userType: 'buyer' };
+            const buyers = await usersCollection.find(query).toArray();
+            res.send(buyers)
+        })
     }
     finally {
 
