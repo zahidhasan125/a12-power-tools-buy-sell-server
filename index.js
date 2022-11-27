@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const jwt = require('jsonwebtoken');
 const app = express();
 const port = process.env.PORT || 5000;
 require('dotenv').config();
@@ -9,7 +11,6 @@ app.use(express.json());
 
 
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.voxvdqi.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -19,6 +20,19 @@ async function run() {
         const productsCollection = client.db('powerToolsBuySell').collection('products');
         const usersCollection = client.db('powerToolsBuySell').collection('users');
         const categoryCollection = client.db('powerToolsBuySell').collection('category');
+
+
+        app.get('/jwt', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const user = await usersCollection.findOne(query);
+            if (user) {
+                const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+                return res.send({ accessToken: token })
+            }
+            console.log(user);
+            res.status(401).send({ accessToken: '' })
+        })
 
         app.post('/product', async (req, res) => {
             const product = req.body;
