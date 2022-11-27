@@ -7,7 +7,6 @@ require('dotenv').config();
 app.use(cors());
 app.use(express.json());
 
-// powerToolsAdmin:vJoudtGeIhjCL0kN
 
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
@@ -20,6 +19,43 @@ async function run() {
         const productsCollection = client.db('powerToolsBuySell').collection('products');
         const usersCollection = client.db('powerToolsBuySell').collection('users');
         const categoryCollection = client.db('powerToolsBuySell').collection('category');
+
+        app.post('/product', async (req, res) => {
+            const product = req.body;
+            const result = await productsCollection.insertOne(product);
+            res.send(result)
+        })
+
+        app.get('/myproduct', async (req, res) => {
+            const email = req.query.email;
+            const query = { sellerEmail: email }
+            const products = await productsCollection.find(query).toArray();
+            res.send(products)
+        })
+
+        app.put('/myproduct/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) }
+            const updateInfo = req.body;
+            const updateName = updateInfo.name;
+            const updatePrice = updateInfo.price;
+            const updateDoc = {
+                $set: {
+                    name: updateName,
+                    price: updatePrice
+                }
+            }
+            const options = { upsert: true };
+            const result = await productsCollection.updateOne(filter, updateDoc, options);
+            res.send(result)
+        })
+
+        app.delete('/myproduct/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await productsCollection.deleteOne(query);
+            res.send(result)
+        })
 
         app.get('/category/:id', async (req, res) => {
             const categoryId = req.params.id;
@@ -36,6 +72,17 @@ async function run() {
             res.send(categories)
         })
 
+
+        app.get('/users/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email };
+            const user = await usersCollection.findOne(query);
+            if (user?.userType === 'admin') {
+                res.send({ isAdmin: user?.userType === 'admin' })
+            } else {
+                res.send({ isSeller: user?.userType === 'seller' })
+            }
+        })
 
         app.post('/users', async (req, res) => {
             const userInfo = req.body;
