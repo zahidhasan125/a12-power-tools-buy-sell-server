@@ -37,6 +37,7 @@ async function run() {
         const categoryCollection = client.db('powerToolsBuySell').collection('category');
         const ordersCollection = client.db('powerToolsBuySell').collection('orders');
         const paymentsCollection = client.db('powerToolsBuySell').collection('payments');
+        const wishlistCollection = client.db('powerToolsBuySell').collection('wishlist');
 
         const verifyAdmin = async (req, res, next) => {
             const decodedEmail = req.decoded.email;
@@ -198,6 +199,19 @@ async function run() {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
             const result = await ordersCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        app.get('/mywishtlist', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            const query = { userEmail: email };
+            const myWishListItems = await wishlistCollection.find(query).toArray();
+            res.send(myWishListItems);
+        })
+
+        app.post('/mywishlist', verifyJWT, async (req, res) => {
+            const item = req.body;
+            const result = await wishlistCollection.insertOne(item);
             res.send(result);
         })
 
