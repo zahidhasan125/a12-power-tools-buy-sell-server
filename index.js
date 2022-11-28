@@ -202,7 +202,7 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/mywishtlist', verifyJWT, async (req, res) => {
+        app.get('/mywishtlist', async (req, res) => {
             const email = req.query.email;
             const query = { userEmail: email };
             const myWishListItems = await wishlistCollection.find(query).toArray();
@@ -213,6 +213,13 @@ async function run() {
             const item = req.body;
             const result = await wishlistCollection.insertOne(item);
             res.send(result);
+        })
+
+        app.delete('/mywishlist/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) }
+            const result = await wishlistCollection.deleteOne(query);
+            res.send(result)
         })
 
 
