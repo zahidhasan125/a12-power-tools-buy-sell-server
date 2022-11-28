@@ -58,8 +58,6 @@ async function run() {
             next();
         }
 
-
-
         app.get('/jwt', async (req, res) => {
             const email = req.query.email;
             const query = { email: email };
@@ -215,7 +213,7 @@ async function run() {
             }
         })
 
-        app.post('/users', verifyJWT, async (req, res) => {
+        app.post('/users', async (req, res) => {
             const userInfo = req.body;
             const user = userInfo.usrInfo;
             const result = await usersCollection.insertOne(user);
@@ -228,7 +226,7 @@ async function run() {
             res.send(sellers)
         })
 
-        app.delete('/sellers/:id', async (req, res) => {
+        app.delete('/sellers/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await usersCollection.deleteOne(query);
@@ -242,7 +240,7 @@ async function run() {
             res.send(buyers)
         })
 
-        app.delete('/buyers/:id', async (req, res) => {
+        app.delete('/buyers/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await usersCollection.deleteOne(query);
