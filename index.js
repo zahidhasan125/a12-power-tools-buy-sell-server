@@ -12,7 +12,7 @@ app.use(express.json());
 
 
 
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.voxvdqi.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.nh0c69x.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 const verifyJWT = (req, res, next) => {
@@ -198,6 +198,7 @@ async function run() {
         app.delete('/orders/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
+            console.log(query)
             const result = await ordersCollection.deleteOne(query);
             res.send(result);
         })
@@ -212,12 +213,13 @@ async function run() {
         app.post('/mywishlist', verifyJWT, async (req, res) => {
             const item = req.body;
             const result = await wishlistCollection.insertOne(item);
-            res.send(result);
+            res.send(result)
         })
 
         app.delete('/mywishlist/:id', verifyJWT, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) }
+            console.log(query);
             const result = await wishlistCollection.deleteOne(query);
             res.send(result)
         })
